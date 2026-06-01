@@ -1,4 +1,27 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+env.bak/
+venv.bak/
 
+# Project specific
+/tests/
+/videos/
+/models/
+/logs/
 
 /PRD.md
 /FEATURE_ROADMAP.md
+
+# Testing
+.pytest_cache/
+
+# OS specific
+.DS_Store
+Thumbs.db
