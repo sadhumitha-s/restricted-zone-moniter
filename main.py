@@ -6,9 +6,13 @@ import os
 from src.video_input import VideoInput
 from src.detector import Detector
 from src.tracker import MovementTracker
+from src.zone_mapper import ZoneMapper
+from src.zone_checker import ZoneChecker
+from src.logger import EventLogger
+from src.statistics import SummaryStatistics
 
 def main():
-    parser = argparse.ArgumentParser(description="Restricted Zone Monitor - Phase 1")
+    parser = argparse.ArgumentParser(description="Restricted Zone Monitor - Phase 2")
     parser.add_argument("--source", type=str, default="videos/sample.mp4", help="Path to input MP4 video file")
     args = parser.parse_args()
 
@@ -24,6 +28,26 @@ def main():
     detector = Detector()
 
     movement_tracker = MovementTracker()
+    
+    # Phase 2: Mapping Step
+    # Read the first frame
+    first_frame = None
+    while first_frame is None and video_stream.running():
+        first_frame = video_stream.read()
+        
+    if first_frame is None:
+        print("Error: Could not read any frame from the video source.")
+        sys.exit(1)
+        
+    mapper = ZoneMapper()
+    polygon = mapper.map_zone(first_frame)
+    
+    if len(polygon) < 3:
+        print("Warning: A valid zone was not defined. Monitoring will proceed without zone checking.")
+        zone_checker = None
+    else:
+        event_logger = EventLogger()
+        zone_checker = ZoneChecker(polygon, logger=event_logger)
 
     print("Starting monitoring. Press 'q' to quit.")
     
@@ -52,8 +76,18 @@ def main():
                 label = detector.get_class_label(class_id)
                 status = movement_tracker.update_and_get_status(track_id, box)
                 
-                # Dynamic coloring: Human = Blue, Animal = Green
-                color = (255, 0, 0) if label == "Human" else (0, 255, 0)
+                # Check intrusion
+                is_intruding = False
+                if zone_checker is not None:
+                    is_intruding = zone_checker.check_intrusion(
+                        track_id, box, label=label, status=status, conf=float(conf)
+                    )
+                
+                # Dynamic coloring: Intrusion = Red, Human = Blue, Animal = Green
+                if is_intruding:
+                    color = (0, 0, 255) # Red for intrusion
+                else:
+                    color = (255, 0, 0) if label == "Human" else (0, 255, 0)
                 
                 x1, y1, x2, y2 = map(int, box)
                 
@@ -67,6 +101,10 @@ def main():
 
         # Cleanup old tracks to free memory
         movement_tracker.cleanup_old_tracks(active_track_ids)
+        if zone_checker is not None:
+            zone_checker.cleanup_old_tracks(active_track_ids)
+            # Draw the zone overlay on the frame
+            frame = zone_checker.draw_zone(frame)
 
         # Display the frame
         cv2.imshow("Restricted Zone Monitor", frame)
@@ -78,7 +116,15 @@ def main():
     # Cleanup
     video_stream.stop()
     cv2.destroyAllWindows()
+    
+    if zone_checker is not None:
+        zone_checker.flush_active_intrusions()
+        
     print("Monitoring stopped.")
+    
+    # Generate statistics
+    stats = SummaryStatistics()
+    stats.generate_summary()
 
 if __name__ == "__main__":
     main()

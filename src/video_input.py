@@ -54,6 +54,6 @@ class VideoInput:
 
     def stop(self):
         self.stopped = True
-        if self.thread and self.thread.is_alive():
+        if self.thread and self.thread.is_alive() and threading.current_thread() != self.thread:
             self.thread.join(timeout=1.0)
         self.cap.release()

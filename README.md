@@ -3,13 +3,17 @@
 ## Overview
 The Restricted Zone Intrusion Detection System is a computer vision application built for monitoring restricted areas, such as railway tracks. It uses state-of-the-art deep learning (YOLOv8) to automatically detect persons and animals, tracks their movement using ByteTrack, and determines their movement status (Moving vs. Stationary). 
 
-This repository contains the Phase 1 implementation (Core Vision Pipeline), focusing on robust detection, consistent tracking, and real-time visualization from a local MP4 video file.
+This repository currently implements the complete end-to-end system through **Phase 3**, which includes the Core Vision Pipeline, Spatial Logic & Intrusion Detection, and Evidence Collection & Analytics capabilities.
 
 ## Features
 - **Object Detection**: Identifies 'Human' and general 'Animal' classes using YOLOv8n.
 - **Object Tracking**: Assigns and maintains unique tracking IDs across frames.
 - **Movement Classification**: Analyzes object trajectories over a short history to classify them as 'Moving' or 'Stationary'.
-- **Live Visualization**: Displays a real-time annotated video feed with bounding boxes, dynamic color-coding (Blue for humans, Green for animals), and confidence scores.
+- **Interactive Zone Mapping (Phase 2)**: Provides an interactive UI to click and draw a polygon representing the restricted zone on the first frame of the video.
+- **Intrusion Detection (Phase 2)**: Uses spatial logic to determine if an object's bottom-center point has entered the restricted zone.
+- **Live Visualization**: Displays a real-time annotated video feed with bounding boxes, dynamic color-coding (Red for intrusions, Blue for humans, Green for animals), and a semi-transparent overlay of the restricted zone.
+- **Evidence Collection (Phase 3)**: Logs detailed intrusion events (time, duration, type, etc.) to a persistent CSV file.
+- **Summary Analytics (Phase 3)**: Automatically calculates and displays summary statistics on application exit.
 
 ## Project Structure
 ```text
@@ -19,8 +23,12 @@ restricted-zone-monitor/
 ├── src/
 │   ├── video_input.py      # Background thread video ingestion & buffering
 │   ├── detector.py         # YOLOv8n inference wrapper
-│   └── tracker.py          # Movement state & tracking logic
-├── tests/                  # Unit tests
+│   ├── tracker.py          # Movement state & tracking logic
+│   ├── zone_mapper.py      # UI logic to interactively map the restricted zone
+│   ├── zone_checker.py     # Spatial logic to detect zone intrusions
+│   ├── logger.py           # Intrusion event logging to CSV
+│   └── statistics.py       # Generation of summary analytics from logs
+├── tests/                  # Unit tests (including test_zone_checker.py)
 ├── videos/                 # Directory for local mp4 files
 ├── models/                 # Model weights directory
 └── logs/                   # Directory for intrusion logs (Phase 3)
@@ -41,4 +49,12 @@ Run the application using the main script. By default, it looks for a video file
 python main.py --source /path/to/your/video.mp4
 ```
 
-Press `q` on your keyboard to stop the monitoring loop gracefully.
+### Steps:
+1. When you run the script, a static window will pop up showing the first frame of the video.
+2. Click at least 3 points on the image to draw a polygon representing your restricted zone.
+3. Press `Enter` or `Space` to confirm the zone. (Press `q` or `Esc` to cancel and proceed without a zone).
+4. The live monitoring will start. Press `q` on your keyboard to stop the monitoring loop gracefully.
+5. Upon exit, a summary of all intrusions will be printed to the console.
+
+## License
+All rights reserved.
