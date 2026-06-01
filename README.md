@@ -1,5 +1,9 @@
 # Restricted Zone Intrusion Detection System
 
+<div align="center">
+  <video src="./assets/demo.mp4" controls="controls" width="100%"></video>
+</div>
+
 ## Overview
 The Restricted Zone Intrusion Detection System is a computer vision application built for monitoring restricted areas, such as railway tracks. It uses state-of-the-art deep learning (YOLOv8) to automatically detect persons and animals, tracks their movement using ByteTrack, and determines their movement status (Moving vs. Stationary). 
 
