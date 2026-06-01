@@ -4,6 +4,10 @@ The Restricted Zone Intrusion Detection System is a computer vision application 
 
 This repository implements the complete end-to-end system, which includes the Core Vision Pipeline, Spatial Logic & Intrusion Detection, and Evidence Collection & Analytics capabilities.
 
+
+https://github.com/user-attachments/assets/a1e50ba5-5e4e-4734-b547-d07ad2da247a
+
+
 ## Features
 - **Object Detection**: Identifies 'Human' and general 'Animal' classes using YOLOv8n.
 - **Object Tracking**: Assigns and maintains unique tracking IDs across frames.
