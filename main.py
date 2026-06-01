@@ -12,7 +12,7 @@ from src.logger import EventLogger
 from src.statistics import SummaryStatistics
 
 def main():
-    parser = argparse.ArgumentParser(description="Restricted Zone Monitor - Phase 2")
+    parser = argparse.ArgumentParser(description="Restricted Zone Monitor")
     parser.add_argument("--source", type=str, default="videos/sample.mp4", help="Path to input MP4 video file")
     args = parser.parse_args()
 
@@ -29,7 +29,7 @@ def main():
 
     movement_tracker = MovementTracker()
     
-    # Phase 2: Mapping Step
+    # Mapping Step
     # Read the first frame
     first_frame = None
     while first_frame is None and video_stream.running():
